@@ -1,70 +1,120 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { ExerciseCard } from '@/components/ExerciseCard';
+import { RestTimer } from '@/components/RestTimer';
+import React, { useState } from 'react';
+import { View, FlatList, StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const HomeScreen = () => {
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+  const [currentSetIndex, setCurrentSetIndex] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [resting, setResting] = useState(false);
 
-export default function HomeScreen() {
+  const exercises = [
+    {
+      id: '1',
+      name: 'Bench Press',
+      sets: [
+        { reps: 15, weight: '17.5kg' },
+        { reps: 12, weight: '20kg' },
+        { reps: 10, weight: '25kg' },
+        { reps: 8, weight: '27kg' },
+      ],
+      color: '#ff7979',
+    },
+    {
+      id: '2',
+      name: 'Incline Dumbbell Press',
+      sets: [
+        { reps: 15, weight: '17.5kg' },
+        { reps: 12, weight: '20kg' },
+        { reps: 10, weight: '25kg' },
+        { reps: 8, weight: '27kg' },
+      ],
+      color: '#badc58',
+    },
+    {
+      id: '3',
+      name: 'Squat',
+      sets: [
+        { reps: 15, weight: '50kg' },
+        { reps: 12, weight: '60kg' },
+        { reps: 10, weight: '70kg' },
+        { reps: 8, weight: '80kg' },
+      ],
+      color: '#f9ca24',
+    },
+    // Adicione mais exercícios conforme necessário
+  ];
+
+  const handleStartSet = (exerciseIndex: number, setIndex: number) => {
+    setCurrentExerciseIndex(exerciseIndex);
+    setCurrentSetIndex(setIndex);
+    setIsPlaying(true);
+  };
+
+  const handleCompleteSet = () => {
+    setIsPlaying(false);
+    if (currentSetIndex! < exercises[currentExerciseIndex].sets.length - 1) {
+      setCurrentSetIndex(currentSetIndex! + 1);
+    } else {
+      setCurrentSetIndex(null);
+      setResting(true);
+    }
+  };
+
+  const handleSkipRest = () => {
+    setResting(false);
+    if (currentExerciseIndex < exercises.length - 1) {
+      setCurrentExerciseIndex(currentExerciseIndex + 1);
+      setCurrentSetIndex(0);
+    } else {
+      setCurrentExerciseIndex(null);
+      setCurrentSetIndex(null);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View style={styles.container}>
+      {resting ? (
+        <RestTimer
+          duration={300}
+          handleSkipRest={handleSkipRest}
+          onComplete={handleSkipRest}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      ) : (
+        <FlatList
+          data={exercises}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => (
+            <ExerciseCard
+              exercise={item}
+              currentExerciseIndex={currentExerciseIndex}
+              currentSetIndex={currentSetIndex}
+              isPlaying={isPlaying}
+              exerciseIndex={index}
+              handleStartSet={handleStartSet}
+              handleCompleteSet={handleCompleteSet}
+            />
+          )}
+          pagingEnabled
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.flatListContainer}
+        />
+      )}
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  flatListContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
+
+export default HomeScreen;
