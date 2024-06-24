@@ -1,50 +1,32 @@
 import { ExerciseCard } from '@/components/ExerciseCard';
 import { RestTimer } from '@/components/RestTimer';
-import React, { useState } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import useExercise from '@/hooks/useExercise';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, StyleSheet, Text } from 'react-native';
 
-const HomeScreen = () => {
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+
+const HomeScreen: React.FC = () => {
+  const { data } = useExercise();
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState<number | null>(null);
   const [currentSetIndex, setCurrentSetIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [resting, setResting] = useState(false);
 
-  const exercises = [
-    {
-      id: '1',
-      name: 'Bench Press',
-      sets: [
-        { reps: 15, weight: '17.5kg' },
-        { reps: 12, weight: '20kg' },
-        { reps: 10, weight: '25kg' },
-        { reps: 8, weight: '27kg' },
-      ],
-      color: '#ff7979',
-    },
-    {
-      id: '2',
-      name: 'Incline Dumbbell Press',
-      sets: [
-        { reps: 15, weight: '17.5kg' },
-        { reps: 12, weight: '20kg' },
-        { reps: 10, weight: '25kg' },
-        { reps: 8, weight: '27kg' },
-      ],
-      color: '#badc58',
-    },
-    {
-      id: '3',
-      name: 'Squat',
-      sets: [
-        { reps: 15, weight: '50kg' },
-        { reps: 12, weight: '60kg' },
-        { reps: 10, weight: '70kg' },
-        { reps: 8, weight: '80kg' },
-      ],
-      color: '#f9ca24',
-    },
-    // Adicione mais exercícios conforme necessário
-  ];
+  useEffect(() => {
+    const dayName = getDayName();
+    const index = Object.keys(data).indexOf(dayName);
+    if (index !== -1) {
+      setCurrentExerciseIndex(index);
+    }
+  }, [data]);
+
+  const getDayName = (): string => {
+    const daysOfWeek = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    const currentDate = new Date();
+    const dayName = daysOfWeek[currentDate.getDay()];
+    return dayName;
+  };
+  
 
   const handleStartSet = (exerciseIndex: number, setIndex: number) => {
     setCurrentExerciseIndex(exerciseIndex);
@@ -54,7 +36,8 @@ const HomeScreen = () => {
 
   const handleCompleteSet = () => {
     setIsPlaying(false);
-    if (currentSetIndex! < exercises[currentExerciseIndex].sets.length - 1) {
+    const currentDay = Object.keys(data)[currentExerciseIndex];
+    if (currentSetIndex! < data[currentDay][currentExerciseIndex].sets.length - 1) {
       setCurrentSetIndex(currentSetIndex! + 1);
     } else {
       setCurrentSetIndex(null);
@@ -64,7 +47,7 @@ const HomeScreen = () => {
 
   const handleSkipRest = () => {
     setResting(false);
-    if (currentExerciseIndex < exercises.length - 1) {
+    if (currentExerciseIndex < Object.keys(data).length - 1) {
       setCurrentExerciseIndex(currentExerciseIndex + 1);
       setCurrentSetIndex(0);
     } else {
@@ -72,6 +55,14 @@ const HomeScreen = () => {
       setCurrentSetIndex(null);
     }
   };
+
+  if (currentExerciseIndex === null || !data || Object.keys(data).length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Nenhum exercício configurado.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -83,8 +74,8 @@ const HomeScreen = () => {
         />
       ) : (
         <FlatList
-          data={exercises}
-          keyExtractor={(item) => item.id}
+          data={Object.values(data)[currentExerciseIndex]}
+          keyExtractor={(item) => item.name}
           renderItem={({ item, index }) => (
             <ExerciseCard
               exercise={item}
@@ -114,6 +105,10 @@ const styles = StyleSheet.create({
   flatListContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
 });
 
