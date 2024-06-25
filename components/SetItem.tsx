@@ -1,37 +1,38 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-
-export interface SetItemProps {
-  reps: number;
-  weight: string;
-}
+import { ExerciseSet } from "@/constants/Exercise";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 interface SetItemComponentProps {
-  set: SetItemProps;
+  set: ExerciseSet;
   isCurrent: boolean;
   isPlaying: boolean;
-  handleStartSet: () => void;
-  handleCompleteSet: () => void;
+  isCompleted?: boolean;
 }
 
 export const SetItem: React.FC<SetItemComponentProps> = ({
   set,
   isCurrent,
   isPlaying,
-  handleStartSet,
-  handleCompleteSet,
+  isCompleted,
 }) => {
+  
   return (
-    <View style={[styles.setContainer, isCurrent && styles.currentSet]}>
-      <Text style={[styles.setText, isCurrent && styles.currentSetText]}>
+    <View
+      style={[
+        styles.setContainer,
+        isCurrent && isPlaying && styles.currentSet,
+        isCompleted && styles.completedSet,
+      ]}
+    >
+      <Text
+        style={[
+          styles.setText,
+          isCurrent && isPlaying && styles.currentSetText,
+          isCompleted && styles.completedSetText,
+        ]}
+      >
         {set.reps} repetições com {set.weight}
       </Text>
-      <TouchableOpacity
-        style={styles.controlButton}
-        onPress={isPlaying ? handleCompleteSet : handleStartSet}
-      >
-        <Text style={styles.controlButtonText}>{isPlaying && isCurrent ? 'Stop' : 'Play'}</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -39,30 +40,37 @@ export const SetItem: React.FC<SetItemComponentProps> = ({
 const styles = StyleSheet.create({
   setContainer: {
     marginBottom: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   currentSet: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 10,
   },
+  completedSet: {
+    opacity: 0.5,
+  },
   setText: {
     fontSize: 18,
-    color: '#fff',
+    color: "#fff",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   currentSetText: {
-    color: '#000',
+    color: "#000",
   },
-  controlButton: {
-    backgroundColor: '#fff',
+  completedSetText: {
+    color: "#000",
+  },
+  completeButton: {
+    backgroundColor: "#4caf50",
     borderRadius: 10,
     paddingVertical: 5,
     paddingHorizontal: 15,
+    marginVertical: 5,
   },
-  controlButtonText: {
+  completeButtonText: {
     fontSize: 18,
-    color: '#000',
+    color: "#fff",
   },
 });
