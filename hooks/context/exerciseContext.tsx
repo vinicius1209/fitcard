@@ -9,10 +9,26 @@ const ExerciseContext = createContext<ExerciseContextType | undefined>(
 export const ExerciseProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const { data, addExercise } = useExercise();
+  const {
+    data,
+    addExercise,
+    exercisesForTheDay,
+    nonCompletedExercises,
+    completeStep,
+    completeExercise,
+  } = useExercise();
 
   return (
-    <ExerciseContext.Provider value={{ data, addExercise }}>
+    <ExerciseContext.Provider
+      value={{
+        data,
+        addExercise,
+        exercisesForTheDay,
+        nonCompletedExercises,
+        completeStep,
+        completeExercise,
+      }}
+    >
       {children}
     </ExerciseContext.Provider>
   );

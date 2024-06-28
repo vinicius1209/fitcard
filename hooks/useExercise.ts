@@ -156,7 +156,7 @@ const useExercise = (): ExerciseContextType => {
     }
 
     const exercisesForTheDay = data[dayName];
-    const nonCompletedExercises = exercisesForTheDay.filter((exerciseItem: Exercise) => !exerciseItem._isCompleted);
+    const nonCompletedExercises = exercisesForTheDay ? exercisesForTheDay.filter((exerciseItem: Exercise) => !exerciseItem._isCompleted) : [];
 
     return {
         data,
